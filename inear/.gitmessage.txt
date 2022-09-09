@@ -1,0 +1,11 @@
+# gitmoji <이슈번호> <타입>: 제목 (제목은 50글자를 넘기 않도록)
+
+# 제목에 대한 추가 설명 작성
+
+################
+# init  :hammer:
+# feat: :sparkles:
+# fix: :bug:
+# refactor: :art:
+# docs: :memo:
+################
