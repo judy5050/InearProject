@@ -10,4 +10,8 @@ class InearApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void chess() {
+	}
+
 }
