@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
     url: jdbc:oracle:thin:@inear_high?TNS_ADMIN=/Users/kimtaemin/Desktop/study/inear/Wallet_inear
-    username:
-    password:
+    username: ADMIN
+    password: Manduineardb1!
   jpa:
     hibernate:
       ddl-auto: create
