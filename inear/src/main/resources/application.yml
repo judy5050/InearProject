@@ -1,6 +1,13 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/xe
-    username: system
-    password: oracle
-    driver-class-name: oracle.jdbc.driver.OracleDriver
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@inear_high?TNS_ADMIN=/Users/kimtaemin/Desktop/study/inear/Wallet_inear
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    generate-ddl: false
+    show-sql: true
+    database: oracle
+    database-platform: org.hibernate.dialect.Oracle10gDialect
