@@ -37,4 +37,7 @@ public class Alarm {
     @Column(name = "message")
     private String message;
 
+    @Column(name = "path")
+    private String path;
+
 }
