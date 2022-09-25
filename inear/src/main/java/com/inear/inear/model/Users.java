@@ -1,10 +1,20 @@
 package com.inear.inear.model;
 
+import lombok.Getter;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name="users")
+@Getter
 public class Users {
+
+    public Users() {
+    }
+
+    public Users(String snsId) {
+        this.snsId = snsId;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -13,5 +23,6 @@ public class Users {
 
     @Column(name = "sns_id")
     private String snsId;
+
 
 }
