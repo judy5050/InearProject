@@ -29,7 +29,7 @@ public class Alarm {
     private int term;
 
     @Column(name = "voice_type")
-    private int voiceType;
+    private String voiceType;
 
     @Column(name = "name")
     private String name;
