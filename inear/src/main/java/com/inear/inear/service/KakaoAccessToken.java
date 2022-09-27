@@ -17,7 +17,7 @@ import java.io.BufferedReader;
 public class KakaoAccessToken {
 
     private final String accessToken;
-    private final String KAKAO_USER_INFO_API = "https://kapi.kakao.com/v2/user/me";
+    private static final String KAKAO_USER_INFO_API = "https://kapi.kakao.com/v2/user/me";
 
     public KakaoAccessToken(String accessToken) {
         this.accessToken = accessToken;
