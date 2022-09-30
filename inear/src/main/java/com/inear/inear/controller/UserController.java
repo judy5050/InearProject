@@ -4,9 +4,8 @@ import com.inear.inear.controller.model.CheckJwtRes;
 import com.inear.inear.controller.model.PostKakaoSignUpAndSignInReq;
 import com.inear.inear.controller.model.PostKakaoSignUpAndSignInRes;
 import com.inear.inear.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "카카오 로그인/회원가입 API", description = "기존 회원 -> jwt 리턴 , 신규 회원 -> 회원가입 후 jwt 리턴")
     @PostMapping("/login/kakao")
     public ResponseEntity<PostKakaoSignUpAndSignInRes> postKakaoSignUpAndSignIn(PostKakaoSignUpAndSignInReq postKakaoSignUpAndSignInReq) throws IOException {
 
@@ -29,6 +29,7 @@ public class UserController {
         return new ResponseEntity(postKakaoSignUpAndSignInRes, HttpStatus.OK);
     }
 
+    @Operation(summary = "자동 로그인 API", description = "jwt 유효 -> true, jwt 오류 -> false")
     @GetMapping("/check/jwt")
     public ResponseEntity<CheckJwtRes> getJwt() {
 
