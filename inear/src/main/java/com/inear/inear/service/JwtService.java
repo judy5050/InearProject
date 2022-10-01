@@ -13,7 +13,7 @@ import static com.inear.inear.config.Secret.JWT_SECRET_KEY;
 @Service
 public class JwtService {
 
-    private static final String X_ACCESS_TOKEN = "X-ACCESS-TOKEN";
+    public static final String X_ACCESS_TOKEN = "X-ACCESS-TOKEN";
     private static final String USER_ID = "userId";
     private static final String EMPTY_JWT_ERROR = "JWT를 입력해주세요";
     private static final String INVALID_JWT = "유효하지 않은 JWT : ";

@@ -37,6 +37,9 @@ dependencies {
 
 	//jwt
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	//swagger
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 }
 
 tasks.named('test') {
