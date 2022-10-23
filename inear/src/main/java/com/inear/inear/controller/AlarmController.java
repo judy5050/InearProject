@@ -1,8 +1,14 @@
 package com.inear.inear.controller;// Imports the Google Cloud client library
 
-import com.google.cloud.texttospeech.v1.*;
-import com.google.protobuf.ByteString;
+import com.inear.inear.config.Secret;
+import com.inear.inear.exception.AlarmException;
+import com.inear.inear.model.Alarm;
 import com.inear.inear.service.AlarmService;
+import com.inear.inear.service.JwtService;
+import com.inear.inear.utils.Message;
+import com.inear.inear.utils.Status;
+import com.inear.model.GetAlarmRes;
+import com.inear.model.PatchAlarmReq;
 import com.inear.model.PostAlarmReq;
 import com.inear.model.PostAlarmRes;
 import com.oracle.bmc.ConfigFileReader;
@@ -11,16 +17,16 @@ import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
-import com.oracle.bmc.objectstorage.requests.PutObjectRequest;
-import com.oracle.bmc.objectstorage.responses.PutObjectResponse;
+import com.oracle.bmc.objectstorage.transfer.UploadConfiguration;
+import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Google Cloud TextToSpeech API sample application. Example usage: mvn package exec:java
@@ -32,134 +38,96 @@ import java.util.Map;
 public class AlarmController {
 
     private final AlarmService alarmService;
+    private final JwtService jwtService;
 
-    /** Demonstrates using the Text-to-Speech API. */
-//    @GetMapping("/alarm")
-//    public void callAlarm() throws Exception {
-//        // Instantiates a client
-//        try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
-//            // Set the text input to be synthesized
-//            SynthesisInput input = SynthesisInput.newBuilder().setText("Hello, World!").build();
-//
-//            // Build the voice request, select the language code ("en-US") and the ssml voice gender
-//            // ("neutral")
-//            VoiceSelectionParams voice =
-//                    VoiceSelectionParams.newBuilder()
-//                            .setLanguageCode("en-US")
-//                            .setSsmlGender(SsmlVoiceGender.NEUTRAL)
-//                            .build();
-//
-//
-//            // Select the type of audio file you want returned
-//            AudioConfig audioConfig =
-//                    AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build();
-//
-//            // Perform the text-to-speech request on the text input with the selected voice parameters and
-//            // audio file type
-//            SynthesizeSpeechResponse response =
-//                    textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
-//
-//            // Get the audio contents from the response
-//            ByteString audioContents = response.getAudioContent();
-//
-//            // Write the response to the output file.
-//            try (OutputStream out = new FileOutputStream("output.mp3")) {
-//                out.write(audioContents.toByteArray());
-//                System.out.println("Audio content written to file \"output.mp3\"");
-//            }
-//        }
-//    }
+    private static final String ALARM_CREATE_SUCCESS_MESSAGE = "알람생성완료";
+    private static final String ALARM_ESSENTIAL_FIELD_FAIL_MESSAGE = "알람 정보의 필수값을 입력해주세요";
+    private static final String ALARM_PATCH_SUCCESS_MESSAGE = "알람수정성공";
+    private static final String ALARM_DELETE_SUCCESS_MESSAGE = "알람제거성공";
+    private static final String GET_ALARM_LIST_SUCCESS_MESSAGE = "알림리스트 조회";
+    @PostMapping("/alarm")
+    public ResponseEntity<Message> createAlarm(@RequestBody PostAlarmReq postAlarmReq) throws Exception {
 
-//    @GetMapping("/alarm")
-//    public void getAlarm() throws IOException {
-//        /**
-//         * Create a default authentication provider that uses the DEFAULT
-//         * profile in the configuration file.
-//         * Refer to <see href="https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm#SDK_and_CLI_Configuration_File>the public documentation</see> on how to prepare a configuration file.
-//         */
-//        final ConfigFileReader.ConfigFile configFile = ConfigFileReader.parseDefault();
-//        final AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(configFile);
-//
-//        /* Create a service client */
-//        ObjectStorageClient client = new ObjectStorageClient(provider);
-//
-//        /* Create a request and dependent object(s). */
-//
-//        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-//                .namespaceName("EXAMPLE-namespaceName-Value")
-//                .bucketName("EXAMPLE-bucketName-Value")
-//                .objectName("EXAMPLE-objectName-Value")
-//                .versionId("ocid1.test.oc1..<unique_ID>EXAMPLE-versionId-Value")
-//                .ifMatch("EXAMPLE-ifMatch-Value")
-//                .ifNoneMatch("EXAMPLE-ifNoneMatch-Value")
-//                .opcClientRequestId("ocid1.test.oc1..<unique_ID>EXAMPLE-opcClientRequestId-Value")
-//                .opcSseCustomerAlgorithm("EXAMPLE-opcSseCustomerAlgorithm-Value")
-//                .opcSseCustomerKey("EXAMPLE-opcSseCustomerKey-Value")
-//                .opcSseCustomerKeySha256("EXAMPLE-opcSseCustomerKeySha256-Value")
-//                .httpResponseContentDisposition("EXAMPLE-httpResponseContentDisposition-Value")
-//                .httpResponseCacheControl("EXAMPLE-httpResponseCacheControl-Value")
-//                .httpResponseContentType("EXAMPLE-httpResponseContentType-Value")
-//                .httpResponseContentLanguage("EXAMPLE-httpResponseContentLanguage-Value")
-//                .httpResponseContentEncoding("EXAMPLE-httpResponseContentEncoding-Value")
-//                .httpResponseExpires("EXAMPLE-httpResponseExpires-Value").build();
-//
-//        /* Send request to the Client */
-//        GetObjectResponse response = client.getObject(getObjectRequest);
-//    }
-
-    @PutMapping("/alarm")
-    public void alarmTest() throws Exception {
-
-        ConfigFileReader.ConfigFile config = ConfigFileReader.parse("~/.oci/config", "DEFAULT");
-
+        essentialValueCheck(postAlarmReq);
+        jwtService.getUserId();
+        // 파일 업로드를 위한 초기화 및 세팅
+        ConfigFileReader.ConfigFile config = loadObjectStorageConfig();
         AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(config);
+        ObjectStorage client = objectStorageInit(provider);
+        UploadConfiguration uploadConfiguration = uploadSetting();
+        UploadManager uploadManager = new UploadManager(client, uploadConfiguration);
 
+        PostAlarmRes alarm = alarmService.createAlarm(postAlarmReq,uploadManager);
+        Message buildMessage = Message.builder().message(ALARM_CREATE_SUCCESS_MESSAGE).data(new PostAlarmRes(alarm.getAlarmId())).status(Status.OK.getStatusCode()).build();
+        return new ResponseEntity<>(buildMessage,HttpStatus.OK);
+    }
+
+    private UploadConfiguration uploadSetting() {
+        UploadConfiguration uploadConfiguration =
+                UploadConfiguration.builder()
+                        .allowMultipartUploads(true)
+                        .allowParallelUploads(true)
+                        .build();
+        return uploadConfiguration;
+    }
+
+    private ObjectStorage objectStorageInit(AuthenticationDetailsProvider provider) {
         ObjectStorage client = new ObjectStorageClient(provider);
         client.setRegion(Region.AP_SEOUL_1);
+        return client;
+    }
 
-        String namespaceName = "cnddmn2sn79l";
-        String bucketName =  "inear-bucket";
-        String objectName = "test_file.mp3";
-        Map<String, String> metadata = null;
-//        String contentType = "image/jpg";
+    private ConfigFileReader.ConfigFile loadObjectStorageConfig() throws IOException {
+        ConfigFileReader.ConfigFile config = ConfigFileReader.parse(Secret.ORACLE_CONFIG_FILE_LOCATION, Secret.ORACLE_CONFIG_FILE_PROFILE);
+        return config;
+    }
 
-        String contentEncoding = null;
-        String contentLanguage = null;
+    private void essentialValueCheck(PostAlarmReq postAlarmReq) {
+        if(postAlarmReq.getMessage().size() == 0 || postAlarmReq.getAlarmDate().size() == 0 || postAlarmReq.getAlarmTime() == null) {
+            throw new AlarmException(ALARM_ESSENTIAL_FIELD_FAIL_MESSAGE);
+        }
+    }
 
-        File body = new File("/output.mp3");
+    @PatchMapping("/alarms/{id}")
+    public ResponseEntity<Message> patchAlarm(@PathVariable Long id, @RequestBody PatchAlarmReq patchAlarmReq) throws Exception {
+        jwtService.getUserId();
+        // 파일 업로드를 위한 초기화 및 세팅
+        ConfigFileReader.ConfigFile config = loadObjectStorageConfig();
+        AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(config);
+        ObjectStorage client = objectStorageInit(provider);
+        UploadConfiguration uploadConfiguration = uploadSetting();
+        UploadManager uploadManager = new UploadManager(client, uploadConfiguration);
 
-        PutObjectRequest request =
-                PutObjectRequest.builder()
-                        .bucketName(bucketName)
-                        .namespaceName(namespaceName)
-                        .objectName(objectName)
-//                        .contentType(contentType)
-                        .contentLanguage(contentLanguage)
-                        .putObjectBody(generateStreamFromString("ExampleStreamValue"))
-                        .contentEncoding(contentEncoding)
-                        .opcMeta(metadata)
-                        .build();
-
-        PutObjectResponse response = client.putObject(request);
+        alarmService.modifyAlarm(id,patchAlarmReq,uploadManager);
+        Message message = Message.builder().message(ALARM_PATCH_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).build();
+        return new ResponseEntity<>(message,HttpStatus.OK);
 
     }
 
-
-    private static InputStream generateStreamFromString(String data) {
-        return new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
+    @DeleteMapping("/alarms/{id}")
+    public ResponseEntity<Message> deleteAlarm(@PathVariable Long id){
+        jwtService.getUserId();
+        alarmService.deleteAlarm(id);
+        Message message = Message.builder().message(ALARM_DELETE_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).build();
+        return new ResponseEntity<>(message,HttpStatus.OK);
 
     }
-//
-//    @PostMapping("/alarm")
-//    public ResponseEntity<PostAlarmRes> createAlarm(@RequestBody PostAlarmReq postAlarmReq) {
-//        if(notNullFieldValidate(postAlarmReq)) {
-//            throw new IllegalArgumentException("message, alarmTime. alarmDate 는 필수값입니다.");
-//        }
-//        return new ResponseEntity<PostAlarmRes>(alarmService.createAlarm(postAlarmReq), HttpStatus.OK);
-//
-//    }
-//
-//    private boolean notNullFieldValidate(PostAlarmReq postAlarmReq) {
-//        return postAlarmReq.getAlarmDate() == null || postAlarmReq.getAlarmTime() == null || postAlarmReq.getMessage() == null;
-//    }
+
+    @GetMapping("/alarms")
+    public ResponseEntity<Message> getAlarms(){
+        Long userId = jwtService.getUserId();
+        List<Alarm> alarms = alarmService.findByAlarms(userId);
+        List<GetAlarmRes> getAlarmsRes = alarms.stream().map(GetAlarmRes::new).collect(Collectors.toList());
+        Message message = Message.builder().message(GET_ALARM_LIST_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).data(getAlarmsRes).build();
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
+
+    @GetMapping("/alarms/{id}")
+    public ResponseEntity<Message> getAlarms(@PathVariable Long id){
+        jwtService.getUserId();
+        Alarm alarm = alarmService.findByAlarm(id);
+        Message message = Message.builder().message(GET_ALARM_LIST_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).data(new GetAlarmRes(alarm)).build();
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
+
 }

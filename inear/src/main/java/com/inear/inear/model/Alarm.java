@@ -1,9 +1,19 @@
 package com.inear.inear.model;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import com.inear.model.PatchAlarmReq;
+import com.inear.model.PostAlarmReq;
+import com.inear.model.VoiceType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+@Getter
 @Entity
+@NoArgsConstructor
 @Table(name="Alarm")
 public class Alarm {
 
@@ -17,7 +27,7 @@ public class Alarm {
     private Users userID;
 
     @Column(name = "alarm_time")
-    private LocalDateTime alarmTime;
+    private LocalTime alarmTime;
 
     @Column(name = "alarmDate")
     private String alarmDate;
@@ -28,8 +38,9 @@ public class Alarm {
     @Column(name = "term")
     private int term;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "voice_type")
-    private String voiceType;
+    private VoiceType voiceType;
 
     @Column(name = "name")
     private String name;
@@ -40,4 +51,51 @@ public class Alarm {
     @Column(name = "path")
     private String path;
 
+    public Alarm(PostAlarmReq postAlarmReq) {
+        this.alarmTime = postAlarmReq.getAlarmTime();
+        this.alarmDate = convertArrayMsgToStringMsg(postAlarmReq.getAlarmDate());
+        this.repeat = postAlarmReq.getRepeat();
+        this.term = postAlarmReq.getTerm();
+        this.voiceType = postAlarmReq.getVoiceType();
+        this.name = postAlarmReq.getName();
+        this.message =  convertArrayMsgToStringMsg(postAlarmReq.getMessage());
+    }
+
+    public Alarm(Alarm alarm, PatchAlarmReq patchAlarmReq) {
+        alarm.alarmTime = patchAlarmReq.getAlarmTime();
+        if(!isNullArray(patchAlarmReq.getAlarmDate())){
+            alarm.alarmDate = convertArrayMsgToStringMsg(patchAlarmReq.getAlarmDate());
+        }
+        alarm.repeat = patchAlarmReq.getRepeat();
+        alarm.term = patchAlarmReq.getTerm();
+        alarm.voiceType = patchAlarmReq.getVoiceType();
+        alarm.name = patchAlarmReq.getName();
+        if(!isNullArray(patchAlarmReq.getMessage())) {
+            alarm.message =  convertArrayMsgToStringMsg(patchAlarmReq.getMessage());
+        }
+    }
+
+    public static String convertArrayMsgToStringMsg(final ArrayList<String> message) {
+        StringBuilder str = new StringBuilder();
+        for (String m : message) {
+            if(str.length() == 0){
+                str.append(m);
+            }else {
+                str.append(","+m);
+            }
+        }
+        return str.toString();
+    }
+
+    public static ArrayList<String> convertStringMsgToArrayMsg(String message) {
+        String[] str = message.split(",");
+        return new ArrayList<>(Arrays.asList(str));
+    }
+
+    public static boolean isNullArray(final ArrayList<String> array) {
+        if(array == null) {
+         return true;
+        }
+        return false;
+    }
 }
