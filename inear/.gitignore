@@ -38,4 +38,5 @@ out/
 
 ##
 application-prod.yml
+application.yml
 /src/main/java/com/inear/inear/config/Secret.java
