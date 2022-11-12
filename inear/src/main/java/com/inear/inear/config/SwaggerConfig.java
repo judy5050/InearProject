@@ -2,7 +2,7 @@ package com.inear.inear.config;
 
 import java.util.*;
 
-import com.inear.inear.service.JwtService;
+import com.inear.inear.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

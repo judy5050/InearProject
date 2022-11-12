@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PostKakaoSignUpAndSignInRes {
+public class PostSignUpAndSignInRes {
     private String jwt;
 }
