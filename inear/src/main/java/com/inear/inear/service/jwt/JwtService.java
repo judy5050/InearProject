@@ -1,4 +1,4 @@
-package com.inear.inear.service;
+package com.inear.inear.service.jwt;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Service;

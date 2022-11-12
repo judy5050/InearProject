@@ -1,4 +1,4 @@
-package com.inear.inear.service;
+package com.inear.inear.service.kakao;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
