@@ -1,13 +1,16 @@
 spring:
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    url: jdbc:oracle:thin:@inear_high?TNS_ADMIN=/Users/kimtaemin/Desktop/study/inear/Wallet_inear
-    username:
-    password:
+    url: jdbc:oracle:thin:@inear_high?TNS_ADMIN=/Users/parkhyojeong/Desktop/toyProject/inearDB/Wallet_inear
+    username: ADMIN
+    password: Aksenxkwndb1!
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     generate-ddl: false
     show-sql: true
     database: oracle
     database-platform: org.hibernate.dialect.Oracle10gDialect
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
