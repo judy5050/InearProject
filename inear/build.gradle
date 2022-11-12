@@ -47,7 +47,20 @@ dependencies {
 	//swagger
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
-	//
+	//alarm
+	implementation platform('com.google.cloud:libraries-bom:26.1.1')
+	implementation 'com.google.cloud:google-cloud-texttospeech'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-apigateway:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-bom:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-audit:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-core:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-filestorage:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-database:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-workrequests:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-objectstorage-generated:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-common:2.45.0'
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-objectstorage-extensions:2.45.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 }
 
