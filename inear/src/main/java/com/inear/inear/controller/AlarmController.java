@@ -130,7 +130,7 @@ public class AlarmController {
     }
 
     @GetMapping("/alarms/{id}")
-    public ResponseEntity<Message> getAlarms(@PathVariable Long id){
+    public ResponseEntity<Message> getAlarm(@PathVariable Long id){
         jwtService.getUserId();
         Alarm alarm = alarmService.findByAlarm(id);
         Message message = Message.builder().message(GET_ALARM_LIST_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).data(new GetAlarmRes(alarm)).build();
