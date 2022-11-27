@@ -4,7 +4,9 @@ import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;
 import com.inear.inear.config.Secret;
 import com.inear.inear.model.Alarm;
+import com.inear.inear.model.Users;
 import com.inear.inear.repository.AlarmRepository;
+import com.inear.inear.repository.UserRepository;
 import com.inear.model.PatchAlarmReq;
 import com.inear.model.PostAlarmReq;
 import com.inear.model.PostAlarmRes;
@@ -26,9 +28,11 @@ public class AlarmService {
     public static final String bucketName = Secret.ORACLE_BUCKET_NAME;
     public static final String namespaceName = Secret.ORACLE_BUCKET_NAMESPACE;
     private final AlarmRepository alarmRepository;
+    private final UserRepository userRepository;
     @Transactional
-    public PostAlarmRes createAlarm(final PostAlarmReq postAlarmReq,final UploadManager uploadManager) throws Exception {
-        Alarm postAlarm = alarmRepository.save(new Alarm(postAlarmReq));
+    public PostAlarmRes createAlarm(final PostAlarmReq postAlarmReq,final UploadManager uploadManager, final Long userId) throws Exception {
+        Users users = userRepository.findById(userId).get();
+        Alarm postAlarm = alarmRepository.save(new Alarm(postAlarmReq,users));
 //        makeAlarmMp3File(Alarm.convertArrayMsgToStringMsg(postAlarmReq.getMessage()),postAlarm.getAlarmId());
         makeAlarmMp3FileTmp(postAlarmReq,postAlarm.getAlarmId());
         uploadAlarmMp3File(postAlarm,uploadManager);

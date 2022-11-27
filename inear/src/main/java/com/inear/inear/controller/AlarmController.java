@@ -17,6 +17,12 @@ import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
+import com.oracle.bmc.objectstorage.model.CreatePreauthenticatedRequestDetails;
+import com.oracle.bmc.objectstorage.model.PreauthenticatedRequest;
+import com.oracle.bmc.objectstorage.requests.CreatePreauthenticatedRequestRequest;
+import com.oracle.bmc.objectstorage.requests.GetPreauthenticatedRequestRequest;
+import com.oracle.bmc.objectstorage.responses.CreatePreauthenticatedRequestResponse;
+import com.oracle.bmc.objectstorage.responses.GetPreauthenticatedRequestResponse;
 import com.oracle.bmc.objectstorage.transfer.UploadConfiguration;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,17 +54,16 @@ public class AlarmController {
     private static final String GET_ALARM_LIST_SUCCESS_MESSAGE = "알림리스트 조회";
     @PostMapping("/alarm")
     public ResponseEntity<Message> createAlarm(@RequestBody PostAlarmReq postAlarmReq) throws Exception {
-
         essentialValueCheck(postAlarmReq);
-        jwtService.getUserId();
+        Long userId = jwtService.getUserId();
+
         // 파일 업로드를 위한 초기화 및 세팅
         ConfigFileReader.ConfigFile config = loadObjectStorageConfig();
         AuthenticationDetailsProvider provider = new ConfigFileAuthenticationDetailsProvider(config);
         ObjectStorage client = objectStorageInit(provider);
         UploadConfiguration uploadConfiguration = uploadSetting();
         UploadManager uploadManager = new UploadManager(client, uploadConfiguration);
-
-        PostAlarmRes alarm = alarmService.createAlarm(postAlarmReq,uploadManager);
+        PostAlarmRes alarm = alarmService.createAlarm(postAlarmReq,uploadManager,userId);
         Message buildMessage = Message.builder().message(ALARM_CREATE_SUCCESS_MESSAGE).data(new PostAlarmRes(alarm.getAlarmId())).status(Status.OK.getStatusCode()).build();
         return new ResponseEntity<>(buildMessage,HttpStatus.OK);
     }
