@@ -89,7 +89,8 @@ public class AlarmController {
     }
 
     private void essentialValueCheck(PostAlarmReq postAlarmReq) {
-        if(postAlarmReq.getMessage().size() == 0 || postAlarmReq.getAlarmDate().size() == 0 || postAlarmReq.getAlarmTime() == null) {
+        if(postAlarmReq.getMessage() == null || postAlarmReq.getMessage().size() == 0 ||
+                postAlarmReq.getAlarmDate().size() == 0  || postAlarmReq.getAlarmDate() == null|| postAlarmReq.getAlarmTime() == null) {
             throw new AlarmException(ALARM_ESSENTIAL_FIELD_FAIL_MESSAGE);
         }
     }
@@ -129,7 +130,7 @@ public class AlarmController {
     }
 
     @GetMapping("/alarms/{id}")
-    public ResponseEntity<Message> getAlarms(@PathVariable Long id){
+    public ResponseEntity<Message> getAlarm(@PathVariable Long id){
         jwtService.getUserId();
         Alarm alarm = alarmService.findByAlarm(id);
         Message message = Message.builder().message(GET_ALARM_LIST_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).data(new GetAlarmRes(alarm)).build();
