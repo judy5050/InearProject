@@ -89,7 +89,8 @@ public class AlarmController {
     }
 
     private void essentialValueCheck(PostAlarmReq postAlarmReq) {
-        if(postAlarmReq.getMessage().size() == 0 || postAlarmReq.getAlarmDate().size() == 0 || postAlarmReq.getAlarmTime() == null) {
+        if(postAlarmReq.getMessage() == null || postAlarmReq.getMessage().size() == 0 ||
+                postAlarmReq.getAlarmDate().size() == 0  || postAlarmReq.getAlarmDate() == null|| postAlarmReq.getAlarmTime() == null) {
             throw new AlarmException(ALARM_ESSENTIAL_FIELD_FAIL_MESSAGE);
         }
     }
