@@ -4,7 +4,7 @@ import com.inear.inear.config.Secret;
 import com.inear.inear.exception.AlarmException;
 import com.inear.inear.model.Alarm;
 import com.inear.inear.service.AlarmService;
-import com.inear.inear.service.JwtService;
+import com.inear.inear.service.jwt.JwtService;
 import com.inear.inear.utils.Message;
 import com.inear.inear.utils.Status;
 import com.inear.model.GetAlarmRes;
