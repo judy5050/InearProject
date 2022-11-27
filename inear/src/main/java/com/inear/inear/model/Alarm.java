@@ -51,7 +51,7 @@ public class Alarm {
     @Column(name = "path")
     private String path;
 
-    public Alarm(PostAlarmReq postAlarmReq) {
+    public Alarm(final PostAlarmReq postAlarmReq,final Users users) {
         this.alarmTime = postAlarmReq.getAlarmTime();
         this.alarmDate = convertArrayMsgToStringMsg(postAlarmReq.getAlarmDate());
         this.repeat = postAlarmReq.getRepeat();
@@ -59,6 +59,7 @@ public class Alarm {
         this.voiceType = postAlarmReq.getVoiceType();
         this.name = postAlarmReq.getName();
         this.message =  convertArrayMsgToStringMsg(postAlarmReq.getMessage());
+        this.userID = users;
     }
 
     public Alarm(Alarm alarm, PatchAlarmReq patchAlarmReq) {
