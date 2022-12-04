@@ -90,7 +90,6 @@ public class AlarmService {
     }
 
     private SsmlVoiceGender convertStringToSsmlVoiceGender(String voiceGender) {
-        System.out.println(SsmlVoiceGender.valueOf(voiceGender));
         return SsmlVoiceGender.valueOf(voiceGender);
     }
 
@@ -147,5 +146,16 @@ public class AlarmService {
 
     public List<Alarm> findByAlarms(final Long userId) {
         return alarmRepository.findAlarmsBy(userId);
+    }
+
+    @Transactional
+    public Alarm toggleAlarmActive(Long id) {
+        Alarm alarm = alarmRepository.findById(id).get();
+        if(alarm.getActive().equals("Y")){
+            new Alarm(alarm, "N");
+            return alarm;
+        }
+        new Alarm(alarm,"Y");
+        return alarm;
     }
 }
