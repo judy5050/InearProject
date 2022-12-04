@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<Alarm,Long> {
-    @Query("select a from Alarm  a where a.userID.userId= :userId")
+    @Query("select a from Alarm  a where a.userID.userId= :userId order by  a.alarmTime asc ")
     public List<Alarm> findAlarmsBy(@Param("userId") Long userId);
 }
