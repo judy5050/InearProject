@@ -34,5 +34,6 @@ public class GetAlarmRes {
         this.repeat = alarm.getRepeat();
         this.voiceType = alarm.getVoiceType();
         this.active = alarm.getActive();
+        this.name = alarm.getName();
     }
 }
