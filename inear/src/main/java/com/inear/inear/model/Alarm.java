@@ -51,6 +51,10 @@ public class Alarm {
     @Column(name = "path")
     private String path;
 
+    @Column(name="active")
+    private String active;
+
+
     public Alarm(final PostAlarmReq postAlarmReq,final Users users) {
         this.alarmTime = postAlarmReq.getAlarmTime();
         this.alarmDate = convertArrayMsgToStringMsg(postAlarmReq.getAlarmDate());
@@ -60,6 +64,7 @@ public class Alarm {
         this.name = postAlarmReq.getName();
         this.message =  convertArrayMsgToStringMsg(postAlarmReq.getMessage());
         this.userID = users;
+        this.active = "Y";
     }
 
     public Alarm(Alarm alarm, PatchAlarmReq patchAlarmReq) {
@@ -74,6 +79,14 @@ public class Alarm {
         if(!isNullArray(patchAlarmReq.getMessage())) {
             alarm.message =  convertArrayMsgToStringMsg(patchAlarmReq.getMessage());
         }
+    }
+
+    /**
+     * 알람 active 상태 변경
+     * @param alarm
+     */
+    public Alarm(Alarm alarm,String active) {
+        alarm.active = active;
     }
 
     public static String convertArrayMsgToStringMsg(final ArrayList<String> message) {

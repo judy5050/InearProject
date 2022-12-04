@@ -7,22 +7,13 @@ import com.inear.inear.service.AlarmService;
 import com.inear.inear.service.jwt.JwtService;
 import com.inear.inear.utils.Message;
 import com.inear.inear.utils.Status;
-import com.inear.model.GetAlarmRes;
-import com.inear.model.PatchAlarmReq;
-import com.inear.model.PostAlarmReq;
-import com.inear.model.PostAlarmRes;
+import com.inear.model.*;
 import com.oracle.bmc.ConfigFileReader;
 import com.oracle.bmc.Region;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
-import com.oracle.bmc.objectstorage.model.CreatePreauthenticatedRequestDetails;
-import com.oracle.bmc.objectstorage.model.PreauthenticatedRequest;
-import com.oracle.bmc.objectstorage.requests.CreatePreauthenticatedRequestRequest;
-import com.oracle.bmc.objectstorage.requests.GetPreauthenticatedRequestRequest;
-import com.oracle.bmc.objectstorage.responses.CreatePreauthenticatedRequestResponse;
-import com.oracle.bmc.objectstorage.responses.GetPreauthenticatedRequestResponse;
 import com.oracle.bmc.objectstorage.transfer.UploadConfiguration;
 import com.oracle.bmc.objectstorage.transfer.UploadManager;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +42,8 @@ public class AlarmController {
     private static final String ALARM_PATCH_SUCCESS_MESSAGE = "알람수정성공";
     private static final String ALARM_DELETE_SUCCESS_MESSAGE = "알람제거성공";
     private static final String GET_ALARM_LIST_SUCCESS_MESSAGE = "알림리스트 조회";
+
+    private static final String GET_ALARM_STATUS = "알람 상태 조회 성공";
     @PostMapping("/alarm")
     public ResponseEntity<Message> createAlarm(@RequestBody PostAlarmReq postAlarmReq) throws Exception {
         essentialValueCheck(postAlarmReq);
@@ -134,6 +126,15 @@ public class AlarmController {
         jwtService.getUserId();
         Alarm alarm = alarmService.findByAlarm(id);
         Message message = Message.builder().message(GET_ALARM_LIST_SUCCESS_MESSAGE).status(Status.OK.getStatusCode()).data(new GetAlarmRes(alarm)).build();
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
+
+    @GetMapping("/alarms/{id}/active")
+    public ResponseEntity<Message> getAlarmActive(@PathVariable Long id) {
+        jwtService.getUserId();
+        Alarm alarm = alarmService.toggleAlarmActive(id);
+        GetAlarmActive getAlarmActive = new GetAlarmActive(alarm.getActive());
+        Message message = Message.builder().message(GET_ALARM_STATUS).status(Status.OK.getStatusCode()).data(getAlarmActive).build();
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.inear.inear.model.Alarm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -26,6 +24,7 @@ public class GetAlarmRes {
     private  VoiceType voiceType;
 
     private String name;
+    private String active;
 
     public GetAlarmRes(Alarm alarm) {
         this.alarmId = alarm.getAlarmId();
@@ -34,5 +33,6 @@ public class GetAlarmRes {
         this.alarmDate = alarm.convertStringMsgToArrayMsg(alarm.getAlarmDate());
         this.repeat = alarm.getRepeat();
         this.voiceType = alarm.getVoiceType();
+        this.active = alarm.getActive();
     }
 }
