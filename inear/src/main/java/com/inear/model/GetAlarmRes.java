@@ -31,6 +31,7 @@ public class GetAlarmRes {
         this.message = alarm.convertStringMsgToArrayMsg(alarm.getMessage());
         this.alarmTime = alarm.getAlarmTime();
         this.alarmDate = alarm.convertStringMsgToArrayMsg(alarm.getAlarmDate());
+        this.term = alarm.getTerm();
         this.repeat = alarm.getRepeat();
         this.voiceType = alarm.getVoiceType();
         this.active = alarm.getActive();
