@@ -34,7 +34,7 @@ public class AlarmService {
         Users users = userRepository.findById(userId).get();
         Alarm postAlarm = alarmRepository.save(new Alarm(postAlarmReq,users));
 //        makeAlarmMp3File(Alarm.convertArrayMsgToStringMsg(postAlarmReq.getMessage()),postAlarm.getAlarmId());
-        makeAlarmMp3FileTmp(postAlarmReq,postAlarm.getAlarmId());
+        makeAlarmMp3FileTmp(postAlarm,postAlarm.getAlarmId());
         uploadAlarmMp3File(postAlarm,uploadManager);
         return new PostAlarmRes(postAlarm.getAlarmId());
     }
@@ -64,8 +64,8 @@ public class AlarmService {
         }
     }
 
-    public void makeAlarmMp3FileTmp(final PostAlarmReq postAlarmReq,final Long alarmIdx) throws Exception {
-        String alarmMessage = Alarm.convertArrayMsgToStringMsg(postAlarmReq.getMessage());
+    public void makeAlarmMp3FileTmp(final Alarm postAlarmReq,final Long alarmIdx) throws Exception {
+        String alarmMessage = postAlarmReq.getMessage();
         try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setText(alarmMessage).build();
             VoiceSelectionParams voice =
