@@ -5,6 +5,7 @@ import com.inear.model.PostAlarmReq;
 import com.inear.model.VoiceType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalTime;
@@ -62,22 +63,29 @@ public class Alarm {
         this.term = postAlarmReq.getTerm();
         this.voiceType = postAlarmReq.getVoiceType();
         this.name = postAlarmReq.getName();
-        this.message =  convertArrayMsgToStringMsg(postAlarmReq.getMessage());
+        this.message =  addFixAlarmMsg(convertArrayMsgToStringMsg(postAlarmReq.getMessage()));
         this.userID = users;
         this.active = "Y";
     }
 
     public Alarm(Alarm alarm, PatchAlarmReq patchAlarmReq) {
-        alarm.alarmTime = patchAlarmReq.getAlarmTime();
+        if(alarm.alarmTime != null) {
+            alarm.alarmTime = patchAlarmReq.getAlarmTime();
+        }
         if(!isNullArray(patchAlarmReq.getAlarmDate())){
             alarm.alarmDate = convertArrayMsgToStringMsg(patchAlarmReq.getAlarmDate());
         }
         alarm.repeat = patchAlarmReq.getRepeat();
+        System.out.println(patchAlarmReq.getTerm());
         alarm.term = patchAlarmReq.getTerm();
-        alarm.voiceType = patchAlarmReq.getVoiceType();
-        alarm.name = patchAlarmReq.getName();
+        if(alarm.voiceType != null) {
+            alarm.voiceType = patchAlarmReq.getVoiceType();
+        }
+        if(alarm.name != null) {
+            patchAlarmReq.getName();
+        }
         if(!isNullArray(patchAlarmReq.getMessage())) {
-            alarm.message =  convertArrayMsgToStringMsg(patchAlarmReq.getMessage());
+            alarm.message =  addFixAlarmMsg(convertArrayMsgToStringMsg(patchAlarmReq.getMessage()));
         }
     }
 
@@ -101,6 +109,17 @@ public class Alarm {
         return str.toString();
     }
 
+    private static String addFixAlarmMsg(final String msg) {
+        String alarmMsg = "";
+        String prefixMsg = "물건을 빠뜨리지 않게 도와주는 인이어에요 ";
+        String middleMsg = " 다 챙기셧나요? 다시 말씀드릴게요 ";
+        String lastMsg = "챙겨주세요";
+        alarmMsg = prefixMsg+=msg;
+        alarmMsg+= middleMsg;
+        alarmMsg += msg;
+        return alarmMsg+=lastMsg;
+    }
+
     public static ArrayList<String> convertStringMsgToArrayMsg(String message) {
         String[] str = message.split(",");
         return new ArrayList<>(Arrays.asList(str));
@@ -112,4 +131,6 @@ public class Alarm {
         }
         return false;
     }
+
+
 }

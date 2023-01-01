@@ -11,6 +11,9 @@ spring:
     show-sql: true
     database: oracle
     database-platform: org.hibernate.dialect.Oracle10gDialect
+
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+server:
+  port: 9000
